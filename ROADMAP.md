@@ -14,18 +14,19 @@ Laravel app with session auth, Docker setup, React frontend.
 - [x] Tests (12 passing)
 - [x] GitHub Actions CI/CD
 
-## Phase 2: OAuth2 + JWT - TODO
+## Phase 2: OAuth2 + JWT - DONE ✅
 
 Passport integration with custom JWT signing and key rotation.
 
-- [ ] Install and configure Passport
-- [ ] Database signing_keys table
-- [ ] SigningKey model and service
-- [ ] JwtService for token signing/verification
-- [ ] Custom BearerTokenResponse
-- [ ] JWKS and OpenID discovery endpoints
-- [ ] Key rotation command
-- [ ] OAuth scopes table and seeder
+- [x] Install and configure Passport
+- [x] Database signing_keys table with encrypted private keys
+- [x] SigningKey model and service
+- [x] JwtService for token signing/verification
+- [x] Custom BearerTokenResponse for Passport integration
+- [x] JWKS and OpenID discovery endpoints
+- [x] Key rotation command (`php artisan jwt:rotate`)
+- [x] OAuth scopes table and seeder
+- [x] Tests: 24 passing (80 assertions)
 
 ## Phase 3: OAuth Flows - TODO
 
