@@ -1,0 +1,114 @@
+services:
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: identity-gateway-app
+        ports:
+            - "8000:8000"
+        volumes:
+            - .:/var/www/html
+            - /var/www/html/vendor
+            - /var/www/html/node_modules
+        environment:
+            - APP_ENV=local
+            - APP_DEBUG=true
+        depends_on:
+            mysql:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+        networks:
+            - identity-gateway
+        command: >
+            sh -c "
+                composer install --no-interaction --optimize-autoloader &&
+                npm install &&
+                php artisan serve --host=0.0.0.0 --port=8000
+            "
+
+    mysql:
+        image: mysql:8.4
+        container_name: identity-gateway-mysql
+        ports:
+            - "3307:3306"
+        environment:
+            MYSQL_DATABASE: identity_gateway
+            MYSQL_ROOT_PASSWORD: secret
+            MYSQL_USER: identity_user
+            MYSQL_PASSWORD: secret
+        volumes:
+            - mysql_data:/var/lib/mysql
+        networks:
+            - identity-gateway
+        healthcheck:
+            test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-psecret"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+
+    phpmyadmin:
+        image: phpmyadmin:latest
+        container_name: identity-gateway-phpmyadmin
+        ports:
+            - "8080:80"
+        environment:
+            PMA_HOST: mysql
+            PMA_PORT: 3306
+            PMA_USER: root
+            PMA_PASSWORD: secret
+        depends_on:
+            mysql:
+                condition: service_healthy
+        networks:
+            - identity-gateway
+
+    redis:
+        image: redis:7-alpine
+        container_name: identity-gateway-redis
+        ports:
+            - "6380:6379"
+        volumes:
+            - redis_data:/data
+        networks:
+            - identity-gateway
+        healthcheck:
+            test: ["CMD", "redis-cli", "ping"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+
+    mailpit:
+        image: axllent/mailpit:latest
+        container_name: identity-gateway-mailpit
+        ports:
+            - "8025:8025"
+            - "1025:1025"
+        networks:
+            - identity-gateway
+
+    # Optional: Vite dev server for HMR
+    vite:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: identity-gateway-vite
+        ports:
+            - "5173:5173"
+        volumes:
+            - .:/var/www/html
+            - /var/www/html/node_modules
+        working_dir: /var/www/html
+        command: npm run dev -- --host
+        networks:
+            - identity-gateway
+        profiles:
+            - vite
+
+networks:
+    identity-gateway:
+        driver: bridge
+
+volumes:
+    mysql_data:
+    redis_data:

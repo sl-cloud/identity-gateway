@@ -1,0 +1,111 @@
+name: Tests
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  laravel-tests:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: secret
+          MYSQL_DATABASE: identity_gateway_test
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: --health-cmd="redis-cli ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, pdo_mysql, intl, bcmath, zip, redis
+          coverage: none
+
+      - name: Copy .env
+        run: |
+          cp .env.example .env.testing
+          sed -i 's/DB_CONNECTION=mysql/DB_CONNECTION=mysql/' .env.testing
+          sed -i 's/DB_HOST=mysql/DB_HOST=127.0.0.1/' .env.testing
+          sed -i 's/DB_DATABASE=identity_gateway/DB_DATABASE=identity_gateway_test/' .env.testing
+          sed -i 's/DB_USERNAME=identity_user/DB_USERNAME=root/' .env.testing
+          sed -i 's/DB_PASSWORD=secret/DB_PASSWORD=secret/' .env.testing
+          sed -i 's/REDIS_HOST=redis/REDIS_HOST=127.0.0.1/' .env.testing
+          sed -i 's/SESSION_DRIVER=redis/SESSION_DRIVER=array/' .env.testing
+          sed -i 's/CACHE_STORE=redis/CACHE_STORE=array/' .env.testing
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --optimize-autoloader --no-progress
+
+      - name: Generate application key
+        run: php artisan key:generate --env=testing
+
+      - name: Run database migrations
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: identity_gateway_test
+          DB_USERNAME: root
+          DB_PASSWORD: secret
+        run: php artisan migrate --force --env=testing
+
+      - name: Run tests
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_DATABASE: identity_gateway_test
+          DB_USERNAME: root
+          DB_PASSWORD: secret
+          REDIS_HOST: 127.0.0.1
+        run: php artisan test
+
+  code-style:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, pdo_mysql, intl, bcmath, zip
+          coverage: none
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --no-progress
+
+      - name: Run Laravel Pint
+        run: ./vendor/bin/pint --test
+
+  frontend-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build frontend
+        run: npm run build
