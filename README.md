@@ -60,7 +60,7 @@ Access the app at http://localhost:8000
 docker compose logs -f app
 
 # Run tests
-docker compose exec app php artisan test
+docker compose exec  -e APP_ENV=testing app php artisan test
 
 # Code style check
 docker compose exec app ./vendor/bin/pint
@@ -94,20 +94,35 @@ php artisan serve
 - Register: `/auth/register`
 - Dashboard: `/dashboard` (requires login)
 
-### OAuth2 (In Progress)
+### OAuth2 (Phase 2 Complete)
 
-- Authorization Code flow
-- PKCE
-- Client Credentials
-- Refresh tokens
+**JWT Signing with Rotating Keys:**
+- Custom JWT tokens issued via Laravel Passport
+- RSA-3072 key pairs stored in database
+- Active key for signing, retired keys for validation
+- Automatic weekly key rotation via scheduler
+- JWKS endpoint for public key distribution
+
+**Implemented Features:**
+- ✅ Database-backed signing keys with encryption
+- ✅ JWT signing service with rotating keys
+- ✅ Custom Passport bearer token response
+- ✅ JWKS endpoint (`/.well-known/jwks.json`)
+- ✅ OpenID Connect discovery endpoint
+- ✅ Key rotation command (`php artisan jwt:rotate`)
+- ✅ OAuth scope management
+- 🚧 Authorization Code flow (Phase 3)
+- 🚧 PKCE (Phase 3)
+- 🚧 Client Credentials (Phase 3)
 
 ### JWT Features
 
-- 15-minute access tokens
-- RSA key signing with rotation
-- Token introspection (RFC 7662)
-- Token revocation (RFC 7009)
+- 15-minute access tokens (configurable)
+- RSA-3072 key signing with automatic rotation
+- Token introspection (RFC 7662) - Phase 3
+- Token revocation (RFC 7009) - Phase 3
 - Redis-backed revocation list
+- Stateless validation via JWKS
 
 ## API
 
@@ -178,28 +193,14 @@ identity-gateway/
 ## Commands
 
 ```bash
-# Rotate signing keys
-php artisan jwt:rotate
-
-# Cleanup expired tokens
-php artisan tokens:purge
-
-# Setup OAuth
-php artisan passport:install
-php artisan passport:client
-```
-
-## Commands
-
-```bash
 # Key management
-php artisan jwt:rotate              # Rotate JWT signing keys
+php artisan jwt:rotate              # Rotate JWT signing keys (weekly via scheduler)
 
-# Token cleanup
-php artisan tokens:purge            # Remove expired tokens
+# Database
+php artisan db:seed --class=OAuthScopeSeeder  # Seed OAuth scopes
 
-# OAuth
-php artisan passport:install        # Setup Passport
+# OAuth setup
+php artisan passport:install        # Setup Passport (one-time)
 php artisan passport:client         # Create OAuth client
 ```
 
