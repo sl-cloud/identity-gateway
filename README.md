@@ -1,1 +1,216 @@
-# identity-gateway
+# Identity Gateway
+
+[![Tests](https://github.com/sl-cloud/identity-gateway/actions/workflows/tests.yml/badge.svg)](https://github.com/sl-cloud/identity-gateway/actions/workflows/tests.yml)
+
+An identity provider built with Laravel 12, React, and Inertia.js. Supports OAuth2 flows, JWT tokens, and API key authentication.
+
+## Overview
+
+This is a single Laravel application that serves three purposes:
+
+1. **Auth Server** (`/oauth/*`, `/auth/*`, `/.well-known/*`) - Handles OAuth2 flows and JWT issuance
+2. **Resource API** (`/api/v1/*`) - Protected REST endpoints using JWT or API key auth
+3. **Demo App** (`/demo/*`) - Interactive OAuth demonstrations and debugging tools
+
+## Stack
+
+| Component | Technology |
+|-----------|------------|
+| Backend | Laravel 12, PHP 8.4 |
+| Frontend | React 19, Inertia.js |
+| Styling | Tailwind CSS 4 |
+| OAuth2 | Laravel Passport |
+| Database | MySQL 8.4 |
+| Cache | Redis 7 |
+| Email | Mailpit |
+| Containers | Docker Compose |
+
+## Requirements
+
+- Docker and Docker Compose
+- Or PHP 8.4+, Node.js 20+, and Composer for local development
+
+## Quick Start (Docker)
+
+```bash
+# Clone and setup
+git clone https://github.com/sl-cloud/identity-gateway.git
+cd identity-gateway
+cp .env.example .env
+
+# Build and start services
+docker compose up -d --build
+
+# Generate key and run migrations
+docker compose exec app php artisan key:generate
+docker compose exec app php artisan migrate
+```
+
+Access the app at http://localhost:8000
+
+**Services:**
+- Web app: http://localhost:8000
+- phpMyAdmin: http://localhost:8080 (root / secret)
+- Mailpit: http://localhost:8025
+
+### Common Docker Commands
+
+```bash
+# View logs
+docker compose logs -f app
+
+# Run tests
+docker compose exec app php artisan test
+
+# Code style check
+docker compose exec app ./vendor/bin/pint
+
+# Container shell
+docker compose exec app bash
+
+# Stop everything
+docker compose down -v  # -v removes volumes too
+```
+
+## Local Development (No Docker)
+
+```bash
+composer install
+npm install
+cp .env.example .env
+php artisan key:generate
+
+# Update .env with your database credentials, then:
+php artisan migrate
+npm run dev
+php artisan serve
+```
+
+## Authentication
+
+### Session Auth (Implemented)
+
+- Login: `/auth/login`
+- Register: `/auth/register`
+- Dashboard: `/dashboard` (requires login)
+
+### OAuth2 (In Progress)
+
+- Authorization Code flow
+- PKCE
+- Client Credentials
+- Refresh tokens
+
+### JWT Features
+
+- 15-minute access tokens
+- RSA key signing with rotation
+- Token introspection (RFC 7662)
+- Token revocation (RFC 7009)
+- Redis-backed revocation list
+
+## API
+
+### Resource Endpoints
+
+| Endpoint | Method | Auth | Scope |
+|----------|--------|------|-------|
+| `/api/v1/me` | GET | JWT/API Key | `user:read` |
+| `/api/v1/users` | GET | JWT/API Key | `users:read` |
+| `/api/v1/resources` | GET/POST | JWT/API Key | `resources:read/write` |
+
+### Auth Endpoints
+
+| Endpoint | Description |
+|----------|-------------|
+| `GET /.well-known/openid-configuration` | OpenID Connect Discovery |
+| `GET /.well-known/jwks.json` | JWKS endpoint |
+| `POST /oauth/token` | Token issuance |
+| `POST /oauth/introspect` | Token introspection |
+| `POST /oauth/revoke` | Token revocation |
+| `GET/POST /oauth/authorize` | Authorization endpoint |
+
+## Testing
+
+```bash
+# Run all tests
+php artisan test
+
+# Specific test file
+php artisan test tests/Feature/Auth/LoginTest.php
+
+# Code style
+./vendor/bin/pint
+```
+
+## CI/CD
+
+GitHub Actions runs tests on every push and PR to `main` and `develop`:
+
+- Tests against MySQL 8.4 and Redis 7
+- Laravel Pint code style checks
+- Frontend build verification
+
+## Project Structure
+
+```
+identity-gateway/
+├── app/
+│   ├── Console/Commands/       # Artisan commands
+│   ├── Guards/                 # JWT and API key guards
+│   ├── Http/Controllers/       # Request handlers
+│   ├── Models/                 # Eloquent models
+│   ├── Passport/               # Custom Passport classes
+│   └── Services/               # Business logic
+├── resources/js/               # React components and pages
+├── routes/                     # Route definitions
+└── tests/                      # Feature and unit tests
+```
+
+## Security
+
+- RSA-3072 keys for JWT signing
+- 15-minute access tokens
+- Key rotation support
+- Session, JWT, and API key guards
+- Stateless JWT validation via Redis
+
+## Commands
+
+```bash
+# Rotate signing keys
+php artisan jwt:rotate
+
+# Cleanup expired tokens
+php artisan tokens:purge
+
+# Setup OAuth
+php artisan passport:install
+php artisan passport:client
+```
+
+## Commands
+
+```bash
+# Key management
+php artisan jwt:rotate              # Rotate JWT signing keys
+
+# Token cleanup
+php artisan tokens:purge            # Remove expired tokens
+
+# OAuth
+php artisan passport:install        # Setup Passport
+php artisan passport:client         # Create OAuth client
+```
+
+## Contributing
+
+1. Create a feature branch
+2. Add tests for new features
+3. Run `./vendor/bin/pint` before committing
+4. Ensure all tests pass
+5. Open a pull request
+
+## License
+
+MIT
