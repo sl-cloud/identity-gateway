@@ -3,7 +3,7 @@
 .claude/
 .opencode/
 
-#Lavavel
+#Laravel
 *.log
 .DS_Store
 .env
@@ -28,3 +28,8 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+#AI/LLM
+.gitnexus
+AGENTS.md
+CLAUDE.md
