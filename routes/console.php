@@ -10,3 +10,6 @@ Artisan::command('inspire', function () {
 
 // Schedule JWT signing key rotation
 Schedule::command('jwt:rotate')->weekly();
+
+// Schedule OAuth token cleanup
+Schedule::command('oauth:purge-expired-tokens')->daily();

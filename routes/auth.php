@@ -1,9 +1,8 @@
 <?php
 
-use App\Http\Controllers\Auth\JwksController;
+use App\Http\Controllers\Auth\AuthorizationController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LogoutController;
-use App\Http\Controllers\Auth\OpenIdConfigController;
 use App\Http\Controllers\Auth\RegisterController;
 use Illuminate\Support\Facades\Route;
 
@@ -14,10 +13,16 @@ Route::prefix('auth')->group(function () {
     Route::get('/register', [RegisterController::class, 'show'])->name('register');
     Route::post('/register', [RegisterController::class, 'store']);
     Route::post('/logout', LogoutController::class)->name('logout');
+
+    // OAuth consent flow
+    Route::middleware(['auth'])->group(function () {
+        Route::post('/consent', [AuthorizationController::class, 'approve'])->name('consent.approve');
+    });
 });
 
-// OpenID Connect / OAuth2 Discovery
-Route::prefix('.well-known')->group(function () {
-    Route::get('/jwks.json', JwksController::class)->name('jwks');
-    Route::get('/openid-configuration', OpenIdConfigController::class)->name('openid-config');
+// OAuth2 Authorization endpoint (requires authentication + session)
+Route::prefix('oauth')->group(function () {
+    Route::middleware(['auth'])->group(function () {
+        Route::get('/authorize', [AuthorizationController::class, 'authorize'])->name('oauth.authorize');
+    });
 });

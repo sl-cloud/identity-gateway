@@ -1,10 +1,12 @@
 <?php
 
+use App\Http\Middleware\AuthenticateOAuthClient;
 use App\Http\Middleware\HandleInertiaRequests;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Support\Facades\Route;
+use Laravel\Passport\Http\Middleware\CheckClientCredentials;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -14,11 +16,18 @@ return Application::configure(basePath: dirname(__DIR__))
         then: function () {
             Route::middleware('web')
                 ->group(base_path('routes/auth.php'));
+
+            Route::group([], base_path('routes/oauth.php'));
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [
             HandleInertiaRequests::class,
+        ]);
+
+        $middleware->alias([
+            'client' => CheckClientCredentials::class,
+            'oauth.client' => AuthenticateOAuthClient::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
