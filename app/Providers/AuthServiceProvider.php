@@ -2,10 +2,9 @@
 
 namespace App\Providers;
 
-use App\Passport\CustomBearerTokenResponse;
+use App\Models\OAuthScope;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Laravel\Passport\Passport;
-use League\OAuth2\Server\AuthorizationServer;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -28,22 +27,20 @@ class AuthServiceProvider extends ServiceProvider
         Passport::refreshTokensExpireIn(now()->addDays(7));
         Passport::personalAccessTokensExpireIn(now()->addDays(7));
 
-        // Register OAuth scopes
-        Passport::tokensCan([
-            'openid' => 'OpenID Connect authentication',
-            'user:read' => 'Read authenticated user information',
-            'users:read' => 'Read all users (admin only)',
-            'resources:read' => 'Read resources',
-            'resources:write' => 'Create, update, and delete resources',
-        ]);
+        // Enable grant types
+        Passport::enablePasswordGrant();
 
-        // Set default scopes
-        Passport::setDefaultScope([
-            'user:read',
-        ]);
+        // Register OAuth scopes from database
+        try {
+            $scopes = OAuthScope::pluck('description', 'id')->toArray();
+            $defaults = OAuthScope::default()->pluck('id')->toArray();
+        } catch (\Throwable) {
+            // Fallback before migrations have run
+            $scopes = [];
+            $defaults = [];
+        }
 
-        // Register custom bearer token response
-        $this->app->make(AuthorizationServer::class)
-            ->setResponseType(new CustomBearerTokenResponse);
+        Passport::tokensCan($scopes);
+        Passport::setDefaultScope($defaults);
     }
 }
