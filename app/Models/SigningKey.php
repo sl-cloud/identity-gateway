@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use App\Enums\KeyStatus;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class SigningKey extends Model
 {
-    use HasUuids;
+    use HasFactory, HasUuids;
 
     protected $fillable = [
         'private_key',
@@ -28,17 +30,17 @@ class SigningKey extends Model
 
     public function isActive(): bool
     {
-        return $this->status === 'active';
+        return $this->status === KeyStatus::ACTIVE->value;
     }
 
     public function isRetired(): bool
     {
-        return $this->status === 'retired';
+        return $this->status === KeyStatus::RETIRED->value;
     }
 
     public function isRevoked(): bool
     {
-        return $this->status === 'revoked';
+        return $this->status === KeyStatus::REVOKED->value;
     }
 
     public function isValid(): bool
@@ -48,12 +50,12 @@ class SigningKey extends Model
 
     public function scopeActive($query)
     {
-        return $query->where('status', 'active');
+        return $query->where('status', KeyStatus::ACTIVE->value);
     }
 
     public function scopeValidForVerification($query)
     {
-        return $query->whereIn('status', ['active', 'retired'])
+        return $query->whereIn('status', [KeyStatus::ACTIVE->value, KeyStatus::RETIRED->value])
             ->where(function ($q) {
                 $q->whereNull('expires_at')
                     ->orWhere('expires_at', '>', now());
