@@ -12,6 +12,10 @@ This is a single Laravel application that serves three purposes:
 2. **Resource API** (`/api/v1/*`) - Protected REST endpoints using JWT or API key auth
 3. **Demo App** (`/demo/*`) - Interactive OAuth demonstrations and debugging tools
 
+## Screenshots
+
+See [docs/SCREENSHOTS.md](docs/SCREENSHOTS.md) for application screenshots.
+
 ## Stack
 
 | Component | Technology |
@@ -94,7 +98,7 @@ php artisan serve
 - Register: `/auth/register`
 - Dashboard: `/dashboard` (requires login)
 
-### OAuth2 (Phase 2 Complete)
+### OAuth2 (Complete)
 
 **JWT Signing with Rotating Keys:**
 - Custom JWT tokens issued via Laravel Passport
@@ -111,16 +115,19 @@ php artisan serve
 - ✅ OpenID Connect discovery endpoint
 - ✅ Key rotation command (`php artisan jwt:rotate`)
 - ✅ OAuth scope management
-- 🚧 Authorization Code flow (Phase 3)
-- 🚧 PKCE (Phase 3)
-- 🚧 Client Credentials (Phase 3)
+- ✅ Authorization Code flow
+- ✅ PKCE (Proof Key for Code Exchange)
+- ✅ Client Credentials flow
+- ✅ Consent screen with approval management
+- ✅ Token introspection (RFC 7662)
+- ✅ Token revocation (RFC 7009)
 
 ### JWT Features
 
 - 15-minute access tokens (configurable)
 - RSA-3072 key signing with automatic rotation
-- Token introspection (RFC 7662) - Phase 3
-- Token revocation (RFC 7009) - Phase 3
+- Token introspection (RFC 7662)
+- Token revocation (RFC 7009)
 - Redis-backed revocation list
 - Stateless validation via JWKS
 
