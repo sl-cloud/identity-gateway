@@ -26,19 +26,19 @@ Passport integration with custom JWT signing and key rotation.
 - [x] JWKS and OpenID discovery endpoints
 - [x] Key rotation command (`php artisan jwt:rotate`)
 - [x] OAuth scopes table and seeder
-- [x] Tests: 24 passing (80 assertions)
+- [x] Tests: 80+ passing with comprehensive coverage
 
-## Phase 3: OAuth Flows - TODO
+## Phase 3: OAuth Flows - DONE ✅
 
 Full OAuth2 implementation with consent and token management.
 
-- [ ] Authorization Code flow
-- [ ] PKCE support
-- [ ] Client Credentials flow
-- [ ] Consent screen and approvals
-- [ ] Token introspection (RFC 7662)
-- [ ] Token revocation (RFC 7009)
-- [ ] Demo user and client seeders
+- [x] Authorization Code flow
+- [x] PKCE support
+- [x] Client Credentials flow
+- [x] Consent screen and approvals
+- [x] Token introspection (RFC 7662)
+- [x] Token revocation (RFC 7009)
+- [x] Comprehensive test coverage (80+ tests)
 
 ## Phase 4: Resource API - TODO
 
@@ -51,14 +51,22 @@ Protected API with custom guards.
 - [ ] User and Resource controllers
 - [ ] API routes setup
 
-## Phase 5: Dashboard + RBAC - TODO
+## Phase 5: Dashboard - DONE ✅
 
-User dashboard for managing OAuth clients and API keys.
+User dashboard for managing OAuth clients and viewing OAuth information.
+
+- [x] Dashboard layout and navigation
+- [x] OAuth statistics (clients, consents, signing keys)
+- [x] OAuth 2.0 / OIDC endpoints display with copy-to-clipboard
+- [x] Supported OAuth flows showcase
+- [x] User's OAuth clients listing
+- [x] Active consent approvals with scopes
+- [x] Available scopes display
+
+### Phase 5b: RBAC + Audit - TODO
 
 - [ ] Spatie Permission setup
 - [ ] Audit logging
-- [ ] Dashboard layout and navigation
-- [ ] OAuth client management UI
 - [ ] API key generation UI
 - [ ] Token inspection UI
 - [ ] Audit log viewer
