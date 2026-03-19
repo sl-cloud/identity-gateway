@@ -71,9 +71,9 @@ class ClientController extends Controller
             $validated['name'],
             $validated['redirect'],
             null, // provider
-            $validated['confidential'],
             false, // personal_access_client
-            false // password_client
+            false, // password_client
+            $validated['confidential']
         );
 
         // Log the creation

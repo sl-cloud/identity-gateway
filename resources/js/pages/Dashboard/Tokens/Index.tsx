@@ -47,20 +47,27 @@ export default function TokensIndex() {
         token: '',
     });
 
-    const handleInspect = (e: React.FormEvent) => {
+    const handleInspect = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsInspecting(true);
 
-        post('/dashboard/tokens/inspect', {
-            onSuccess: (response) => {
-                // @ts-ignore
-                setInspectResult(response.props.result as TokenInspectResult);
-                setIsInspecting(false);
-            },
-            onError: () => {
-                setIsInspecting(false);
-            },
-        });
+        try {
+            const response = await fetch('/dashboard/tokens/inspect', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector<HTMLMetaElement>('meta[name="csrf-token"]')?.content ?? '',
+                },
+                body: JSON.stringify({ token: data.token }),
+            });
+
+            const result = await response.json();
+            setInspectResult(result as TokenInspectResult);
+        } catch {
+            setInspectResult(null);
+        } finally {
+            setIsInspecting(false);
+        }
     };
 
     const handleDeleteClick = (token: Token) => {

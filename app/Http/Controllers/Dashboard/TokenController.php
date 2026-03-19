@@ -113,8 +113,8 @@ class TokenController extends Controller
             ->where('revoked', false)
             ->firstOrFail();
 
-        // Revoke using the revocation service
-        $this->revocationService->revoke($token);
+        // Revoke the token in the database directly since we don't have the JWT string
+        $token->revoke();
 
         // Extract JTI if possible for audit log
         $jti = null;
