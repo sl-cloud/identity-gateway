@@ -5,7 +5,7 @@ namespace Tests\Feature\Auth;
 use App\Models\SigningKey;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Cache;
 use Tests\TestCase;
 use Tests\Traits\CreatesOAuthClient;
 
@@ -64,8 +64,8 @@ class TokenRevocationTest extends TestCase
                 'token' => $tokens['access_token'],
             ]);
 
-        // Check if jti is in Redis blacklist
-        $this->assertTrue((bool) Redis::exists('revoked:'.$jti));
+        // Check if jti is in revocation cache
+        $this->assertTrue(Cache::has('revoked:'.$jti));
     }
 
     public function test_revoked_token_fails_introspection(): void
