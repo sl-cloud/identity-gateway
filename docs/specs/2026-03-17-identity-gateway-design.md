@@ -322,7 +322,7 @@ All public, no auth.
 3. Fetch public key: `SigningKey::where('id', $kid)->whereIn('status', ['active', 'retired'])`
 4. Verify signature with `firebase/php-jwt`
 5. Validate `exp`, `iss`, `aud`
-6. Check Redis revocation blacklist: `Redis::sismember('revoked_tokens', $jti)` → reject if revoked
+6. Check revocation blacklist key: `revoked:<jti>` → reject if revoked
 7. Hydrate user from `sub` claim
 
 ### Key Rotation (`php artisan jwt:rotate`)
@@ -334,6 +334,7 @@ All public, no auth.
 
 ### API Key Auth (`ApiKeyGuard`)
 - Header: `X-Api-Key: igw_live_<32 hex chars>`
+- Alternative header: `Authorization: ApiKey igw_live_<32 hex chars>`
 - Hash with SHA-256, lookup in `api_keys` table
 - Check not revoked, not expired
 

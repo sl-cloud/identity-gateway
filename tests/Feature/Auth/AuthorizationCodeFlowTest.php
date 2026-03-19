@@ -25,12 +25,12 @@ class AuthorizationCodeFlowTest extends TestCase
         ]);
     }
 
-    public function test_authorization_endpoint_redirects_to_login_if_unauthenticated(): void
+    public function test_authorization_endpoint_rejects_unauthenticated_request(): void
     {
         $user = User::factory()->create();
         $client = $this->createConfidentialClient($user);
 
-        $response = $this->get('/oauth/authorize?'.http_build_query([
+        $response = $this->getJson('/oauth/authorize?'.http_build_query([
             'client_id' => $client->id,
             'redirect_uri' => $client->redirect,
             'response_type' => 'code',
@@ -38,7 +38,7 @@ class AuthorizationCodeFlowTest extends TestCase
             'state' => 'test-state',
         ]));
 
-        $response->assertRedirect(route('login'));
+        $response->assertStatus(401);
     }
 
     public function test_authorization_endpoint_shows_consent_screen(): void

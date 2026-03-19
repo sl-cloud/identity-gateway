@@ -40,16 +40,17 @@ Full OAuth2 implementation with consent and token management.
 - [x] Token revocation (RFC 7009)
 - [x] Comprehensive test coverage (80+ tests)
 
-## Phase 4: Resource API - TODO
+## Phase 4: Resource API - DONE ✅
 
-Protected API with custom guards.
+Protected API with custom guards and scope-based access control.
 
-- [ ] JwtGuard (stateless validation)
-- [ ] API key authentication
-- [ ] ApiKeyGuard
-- [ ] RequireScope middleware
-- [ ] User and Resource controllers
-- [ ] API routes setup
+- [x] JwtGuard (stateless validation with multi-guard support)
+- [x] API key authentication with hashed storage
+- [x] ApiKeyGuard with expiration and revocation
+- [x] RequireScope middleware for OAuth2-style scopes
+- [x] UserController and ResourceController
+- [x] API routes with JWT/API key dual auth setup
+- [x] ForceJsonResponse and ValidateJwtSignature middleware
 
 ## Phase 5: Dashboard - DONE ✅
 

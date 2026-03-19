@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Models\User;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
-use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 class JwtService
@@ -151,7 +151,8 @@ class JwtService
      */
     public function isRevoked(string $jti): bool
     {
-        return (bool) Redis::exists('revoked:'.$jti);
+        // Use cache facade which supports multiple drivers (Redis, array, etc.)
+        return Cache::has('revoked:'.$jti);
     }
 
     /**
@@ -159,9 +160,8 @@ class JwtService
      */
     public function revoke(string $jti, int $ttl): void
     {
-        // Use individual key with TTL instead of shared set
-        // This ensures each JTI expires independently
-        Redis::setex('revoked:'.$jti, $ttl, true);
+        // Use cache with TTL - works with Redis, array, file, etc.
+        Cache::put('revoked:'.$jti, true, $ttl);
     }
 
     /**
