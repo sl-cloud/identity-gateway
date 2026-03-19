@@ -29,10 +29,10 @@ class TokenController extends Controller
             return $response;
         }
 
-        // Look up the most recently created Passport token to get user/client/scopes
-        $passportToken = Token::query()
-            ->orderByDesc('created_at')
-            ->first();
+        // Passport 12 returns a League OAuth2 JWT as the access_token.
+        // The token's database ID is stored in the JWT's "jti" claim.
+        $jti = $this->extractJtiFromPassportJwt($body['access_token']);
+        $passportToken = $jti ? Token::find($jti) : null;
 
         if (! $passportToken) {
             return $response;
@@ -47,5 +47,20 @@ class TokenController extends Controller
         $response->setContent(json_encode($body));
 
         return $response;
+    }
+
+    /**
+     * Extract the jti (token ID) from a Passport/League OAuth2 JWT.
+     */
+    private function extractJtiFromPassportJwt(string $jwt): ?string
+    {
+        $parts = explode('.', $jwt);
+        if (count($parts) !== 3) {
+            return null;
+        }
+
+        $payload = json_decode(base64_decode(strtr($parts[1], '-_', '+/'), true));
+
+        return $payload->jti ?? null;
     }
 }

@@ -64,24 +64,35 @@ User dashboard for managing OAuth clients and viewing OAuth information.
 - [x] Active consent approvals with scopes
 - [x] Available scopes display
 
-### Phase 5b: RBAC + Audit - TODO
+### Phase 5b: RBAC + Audit - DONE ✅
 
-- [ ] Spatie Permission setup
-- [ ] Audit logging
-- [ ] API key generation UI
-- [ ] Token inspection UI
-- [ ] Audit log viewer
+- [x] Spatie Permission setup with roles (admin, developer, viewer)
+- [x] Audit logging with 26 action types and secret redaction
+- [x] API key generation UI (show once pattern)
+- [x] Token inspection UI with JWT decoding
+- [x] Audit log viewer with filtering
+- [x] Cross-tenant isolation (owner-scoped queries)
+- [x] RBAC enforcement on all dashboard routes
+- [x] Comprehensive test coverage (authorization, isolation, audit records)
 
-## Phase 6: Demo App - TODO
+## Phase 6: Demo App - IN PROGRESS
 
 Interactive OAuth playground.
 
 - [ ] Demo layout and navigation
 - [ ] OAuth playground page
 - [ ] JWT inspector tool
-- [ ] Flow walkthroughs
+- [ ] Flow walkthroughs (Auth Code, PKCE, Client Credentials)
 - [ ] Introspection demo
 - [ ] Revocation demo
+
+---
+
+## Current Test Count
+
+- **Unit Tests:** JWT service, guards, middleware, audit redaction
+- **Feature Tests:** OAuth flows, API endpoints, dashboard authorization
+- **Total:** 80+ tests passing
 
 ---
 

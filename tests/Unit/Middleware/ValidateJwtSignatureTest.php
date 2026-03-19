@@ -87,7 +87,7 @@ class ValidateJwtSignatureTest extends TestCase
         });
     }
 
-    public function test_returns_401_when_jwt_verification_fails(): void
+    public function test_stores_error_when_jwt_verification_fails(): void
     {
         $this->jwtService->shouldReceive('verify')
             ->with('invalid-token')
@@ -97,15 +97,19 @@ class ValidateJwtSignatureTest extends TestCase
         $request = new Request;
         $request->headers->set('Authorization', 'Bearer invalid-token');
 
-        $response = $this->middleware->handle($request, fn () => response('OK'));
+        $capturedRequest = null;
+        $response = $this->middleware->handle($request, function ($req) use (&$capturedRequest) {
+            $capturedRequest = $req;
 
-        $this->assertEquals(401, $response->getStatusCode());
-        $this->assertEquals('invalid_token', $response->getData(true)['error']);
-        $this->assertStringContainsString('Token expired', $response->getData(true)['error_description']);
-        $this->assertEquals(401, $response->getData(true)['status']);
+            return response('OK');
+        });
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals('Token expired', $capturedRequest->attributes->get('jwt_validation_error'));
+        $this->assertNull($capturedRequest->attributes->get('auth_token_payload'));
     }
 
-    public function test_handles_invalid_argument_exception_separately(): void
+    public function test_stores_error_when_invalid_argument_exception_thrown(): void
     {
         $this->jwtService->shouldReceive('verify')
             ->with('malformed-token')
@@ -115,11 +119,15 @@ class ValidateJwtSignatureTest extends TestCase
         $request = new Request;
         $request->headers->set('Authorization', 'Bearer malformed-token');
 
-        $response = $this->middleware->handle($request, fn () => response('OK'));
+        $capturedRequest = null;
+        $response = $this->middleware->handle($request, function ($req) use (&$capturedRequest) {
+            $capturedRequest = $req;
 
-        $this->assertEquals(401, $response->getStatusCode());
-        $this->assertEquals('invalid_token', $response->getData(true)['error']);
-        $this->assertStringContainsString('Invalid token format', $response->getData(true)['error_description']);
-        $this->assertEquals(401, $response->getData(true)['status']);
+            return response('OK');
+        });
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertEquals('Malformed JWT', $capturedRequest->attributes->get('jwt_validation_error'));
+        $this->assertNull($capturedRequest->attributes->get('auth_token_payload'));
     }
 }

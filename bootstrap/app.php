@@ -15,6 +15,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Validation\ValidationException;
 use Laravel\Passport\Http\Middleware\CheckClientCredentials;
+use Spatie\Permission\Middleware\PermissionMiddleware;
+use Spatie\Permission\Middleware\RoleMiddleware;
+use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -42,16 +45,30 @@ return Application::configure(basePath: dirname(__DIR__))
             'scope' => RequireScope::class,
             'force-json' => ForceJsonResponse::class,
             'validate-jwt' => ValidateJwtSignature::class,
+            'permission' => PermissionMiddleware::class,
+            'role' => RoleMiddleware::class,
+            'role_or_permission' => RoleOrPermissionMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // Customize API error responses
         $exceptions->shouldRenderJsonWhen(function (Request $request) {
+            // Exclude /oauth/authorize — it's a browser-facing endpoint that must
+            // redirect unauthenticated users to login, not return JSON.
+            if ($request->is('oauth/authorize')) {
+                return $request->expectsJson();
+            }
+
             return $request->is('api/*') || $request->is('oauth/*') || $request->expectsJson();
         });
 
         // Handle authentication errors
         $exceptions->render(function (AuthenticationException $e, Request $request) {
+            if ($request->is('oauth/authorize')) {
+                // Let the default handler redirect to login
+                return null;
+            }
+
             if ($request->is('api/*') || $request->is('oauth/*') || $request->expectsJson()) {
                 return response()->json([
                     'error' => 'unauthorized',

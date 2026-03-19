@@ -31,21 +31,15 @@ class ValidateJwtSignature
 
             // Store the validated payload in the request for later use
             $request->attributes->set('auth_token_payload', $payload);
-
-            return $next($request);
-        } catch (\InvalidArgumentException $e) {
-            return response()->json([
-                'error' => 'invalid_token',
-                'error_description' => 'Invalid token format: '.$e->getMessage(),
-                'status' => 401,
-            ], 401);
         } catch (\Exception $e) {
-            return response()->json([
-                'error' => 'invalid_token',
-                'error_description' => $e->getMessage(),
-                'status' => 401,
-            ], 401);
+            // Don't reject here — store the error and let the downstream auth
+            // guard decide.  This preserves the API-key fallback: if a request
+            // carries both an invalid Bearer token and a valid X-Api-Key, the
+            // api-key guard still gets a chance to authenticate.
+            $request->attributes->set('jwt_validation_error', $e->getMessage());
         }
+
+        return $next($request);
     }
 
     /**

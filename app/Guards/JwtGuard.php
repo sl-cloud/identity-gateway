@@ -16,6 +16,8 @@ class JwtGuard implements Guard
 
     protected bool $loggedOut = false;
 
+    protected bool $clientCredentialsAuthenticated = false;
+
     public function __construct(
         protected JwtService $jwtService,
         protected Request $request
@@ -26,7 +28,7 @@ class JwtGuard implements Guard
      */
     public function check(): bool
     {
-        return $this->user() !== null;
+        return $this->user() !== null || $this->clientCredentialsAuthenticated;
     }
 
     /**
@@ -67,7 +69,9 @@ class JwtGuard implements Guard
             // We'll create a synthetic user-like object for client credentials
             if (isset($payload->client_id) && $payload->client_id === $userId) {
                 // This is a client credentials token - no user associated
-                // Return null but mark as authenticated via other means
+                // Mark as authenticated so check() returns true
+                $this->clientCredentialsAuthenticated = true;
+
                 return null;
             }
 
@@ -133,6 +137,7 @@ class JwtGuard implements Guard
         $this->user = null;
         $this->tokenPayload = null;
         $this->loggedOut = true;
+        $this->clientCredentialsAuthenticated = false;
         $this->request->attributes->remove('auth_token_payload');
     }
 
@@ -150,6 +155,12 @@ class JwtGuard implements Guard
             $this->tokenPayload = $payload;
 
             return $this->tokenPayload;
+        }
+
+        // If the validate-jwt middleware already rejected this token, don't
+        // re-verify — just let the multi-guard fall through to the next guard.
+        if ($this->request->attributes->get('jwt_validation_error')) {
+            return null;
         }
 
         $token = $this->getTokenFromRequest();
