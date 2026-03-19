@@ -1,4 +1,3 @@
-import React from 'react';
 import { router, usePage } from '@inertiajs/react';
 import DashboardLayout from '../../../layouts/DashboardLayout';
 import { Card, CardHeader } from '../../../components/ui/Card';
@@ -31,6 +30,7 @@ interface AuditLogDetail {
 
 interface AuditLogShowProps {
     log: AuditLogDetail;
+    [key: string]: unknown;
 }
 
 export default function AuditLogShow() {

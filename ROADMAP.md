@@ -75,16 +75,34 @@ User dashboard for managing OAuth clients and viewing OAuth information.
 - [x] RBAC enforcement on all dashboard routes
 - [x] Comprehensive test coverage (authorization, isolation, audit records)
 
-## Phase 6: Demo App - IN PROGRESS
+## Phase 6: Demo App - DONE ✅
 
-Interactive OAuth playground.
+Interactive OAuth playground for learning and testing OAuth2 flows.
 
-- [ ] Demo layout and navigation
-- [ ] OAuth playground page
-- [ ] JWT inspector tool
-- [ ] Flow walkthroughs (Auth Code, PKCE, Client Credentials)
-- [ ] Introspection demo
-- [ ] Revocation demo
+- [x] Demo layout and navigation
+- [x] OAuth playground page (unified interface for all flows)
+- [x] JWT inspector tool (decode + verify signatures against live JWKS)
+- [x] Authorization Code flow walkthrough
+- [x] PKCE flow walkthrough
+- [x] Client Credentials flow walkthrough
+- [x] Token introspection demo (RFC 7662)
+- [x] Token revocation demo (RFC 7009)
+
+## Phase 7: Observability - DONE ✅
+
+Debugging and monitoring tools.
+
+- [x] Laravel Telescope integration for debugging
+- [x] Local debug dashboard at `/telescope`
+- [x] Request/response logging for troubleshooting
+
+---
+
+## Current Test Count
+
+- **Unit Tests:** JWT service, guards, middleware, audit redaction
+- **Feature Tests:** OAuth flows, API endpoints, dashboard authorization, demo pages
+- **Total:** 100+ tests passing
 
 ---
 

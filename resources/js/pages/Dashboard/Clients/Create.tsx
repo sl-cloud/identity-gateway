@@ -1,9 +1,8 @@
-import React, { useState } from 'react';
 import { router, useForm } from '@inertiajs/react';
 import DashboardLayout from '../../../layouts/DashboardLayout';
 import { Card } from '../../../components/ui/Card';
 import { Button } from '../../../components/ui/Button';
-import { Input, Select } from '../../../components/ui/Input';
+import { Input } from '../../../components/ui/Input';
 import { Badge } from '../../../components/ui/Badge';
 
 interface FormData {

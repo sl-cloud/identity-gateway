@@ -1,4 +1,3 @@
-import React from 'react';
 import { router, usePage } from '@inertiajs/react';
 import DashboardLayout from '../../layouts/DashboardLayout';
 import { Card, CardStat } from '../../components/ui/Card';
@@ -53,6 +52,7 @@ interface DashboardProps {
     approvals: Approval[];
     scopes: Scope[];
     endpoints: Endpoints;
+    [key: string]: unknown;
 }
 
 export default function Dashboard() {

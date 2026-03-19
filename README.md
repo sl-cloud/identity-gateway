@@ -27,12 +27,12 @@ See [docs/SCREENSHOTS.md](docs/SCREENSHOTS.md) for application screenshots.
 | Database | MySQL 8.4 |
 | Cache | Redis 7 |
 | Email | Mailpit |
+| Monitoring | Laravel Telescope |
 | Containers | Docker Compose |
 
 ## Requirements
 
 - Docker and Docker Compose
-- Or PHP 8.4+, Node.js 20+, and Composer for local development
 
 ## Quick Start (Docker)
 
@@ -45,7 +45,6 @@ cp .env.example .env
 # Build and start services
 docker compose up -d --build
 
-# Generate key and run migrations
 docker compose exec app php artisan key:generate
 docker compose exec app php artisan migrate
 ```
@@ -56,38 +55,35 @@ Access the app at http://localhost:8000
 - Web app: http://localhost:8000
 - phpMyAdmin: http://localhost:8080 (root / secret)
 - Mailpit: http://localhost:8025
+- Telescope: http://localhost:8000/telescope (local debugging)
 
-### Common Docker Commands
+### Common Commands (Run On Node/Host)
 
 ```bash
 # View logs
 docker compose logs -f app
 
 # Run tests
-docker compose exec  -e APP_ENV=testing app php artisan test
+docker compose exec app php artisan test
 
 # Code style check
 docker compose exec app ./vendor/bin/pint
-
-# Container shell
-docker compose exec app bash
 
 # Stop everything
 docker compose down -v  # -v removes volumes too
 ```
 
-## Local Development (No Docker)
+## Development Workflow (Docker Exec)
 
 ```bash
-composer install
-npm install
-cp .env.example .env
-php artisan key:generate
+docker compose exec app composer install
+docker compose exec app npm install
+docker compose exec app php artisan key:generate
 
-# Update .env with your database credentials, then:
-php artisan migrate
-npm run dev
-php artisan serve
+# Run migrations, frontend dev server, and app server
+docker compose exec app php artisan migrate
+docker compose exec app npm run dev
+docker compose exec app php artisan serve
 ```
 
 ## Authentication
@@ -128,7 +124,7 @@ Role inheritance: Admin > Developer > Viewer (admins have all permissions)
 - ✅ Custom Passport bearer token response
 - ✅ JWKS endpoint (`/.well-known/jwks.json`)
 - ✅ OpenID Connect discovery endpoint
-- ✅ Key rotation command (`php artisan jwt:rotate`)
+- ✅ Key rotation command (`docker compose exec app php artisan jwt:rotate`)
 - ✅ OAuth scope management
 - ✅ Authorization Code flow
 - ✅ PKCE (Proof Key for Code Exchange)
@@ -169,6 +165,34 @@ Developer dashboard for managing OAuth clients, API keys, tokens, and viewing au
 | `/dashboard/tokens` | Token list & inspector | `tokens:read` |
 | `/dashboard/audit-logs` | Audit log viewer | `audit-logs:read` |
 
+## Demo App
+
+> **Note:** Demo routes are only available in `local` and `testing` environments. Access at [http://localhost:8000/demo](http://localhost:8000/demo).
+
+Public demo routes are available under `/demo`:
+
+- `/demo` - Demo landing page with quick links
+- `/demo/playground` - Interactive OAuth playground (Auth Code, PKCE, Client Credentials)
+- `/demo/jwt-inspector` - JWT decode + JOSE signature verification against live JWKS
+- `/demo/flows/auth-code` - Authorization Code walkthrough
+- `/demo/flows/pkce` - PKCE walkthrough
+- `/demo/flows/client-credentials` - Client Credentials walkthrough
+- `/demo/introspection` - RFC 7662 token introspection demo
+- `/demo/revocation` - RFC 7009 token revocation demo
+
+### Demo Credentials
+
+Seed demo data and use this account for browser-based OAuth flows:
+
+- Email: `demo@identitygateway.test`
+- Password: `password`
+
+Run:
+
+```bash
+docker compose exec app php artisan migrate --seed
+```
+
 ## API
 
 ### Resource Endpoints
@@ -194,13 +218,19 @@ Developer dashboard for managing OAuth clients, API keys, tokens, and viewing au
 
 ```bash
 # Run all tests
-php artisan test
+docker compose exec app php artisan test
 
 # Specific test file
-php artisan test tests/Feature/Auth/LoginTest.php
+docker compose exec app php artisan test tests/Feature/Auth/LoginTest.php
+
+# Demo pages / routes coverage
+docker compose exec app php artisan test --filter=DemoPagesTest
+
+# Assign user role (admin/developer/viewer)
+docker compose exec app php artisan user:assign-role user@example.com admin
 
 # Code style
-./vendor/bin/pint
+docker compose exec app ./vendor/bin/pint
 ```
 
 ## CI/CD
@@ -222,7 +252,8 @@ identity-gateway/
 │   ├── Http/Controllers/       # Request handlers
 │   │   ├── Auth/               # OAuth2, login/logout
 │   │   ├── Api/                # Resource API endpoints
-│   │   └── Dashboard/          # Dashboard management
+│   │   ├── Dashboard/          # Dashboard management
+│   │   └── Demo/               # Demo playground controllers
 │   ├── Models/                 # Eloquent models
 │   ├── Passport/               # Custom Passport classes
 │   └── Services/               # Business logic
@@ -233,8 +264,9 @@ identity-gateway/
 │   ├── components/ui/          # Reusable UI components
 │   ├── layouts/                # Dashboard and auth layouts
 │   └── pages/
+│       ├── Auth/               # Login, register, consent
 │       ├── Dashboard/          # Client, API key, token, audit pages
-│       └── Auth/               # Login, register, consent
+│       └── Demo/               # Playground, JWT inspector, flow walkthroughs
 ├── routes/                     # Route definitions
 └── tests/                      # Feature and unit tests
 ```
@@ -250,26 +282,33 @@ identity-gateway/
 - RBAC with Spatie Laravel Permission
 - Cross-tenant isolation (users only see their own resources)
 
-## Commands
+## Commands (Run From Node/Host Shell Using Docker Compose Exec)
 
 ```bash
+# All commands below are executed from the node/host shell.
+# App commands run in the app container via `docker compose exec app ...`.
+
 # Key management
-php artisan jwt:rotate              # Rotate JWT signing keys (weekly via scheduler)
+docker compose exec app php artisan jwt:rotate              # Rotate JWT signing keys (weekly via scheduler)
 
 # Database
-php artisan db:seed --class=OAuthScopeSeeder          # Seed OAuth scopes
-php artisan db:seed --class=RoleAndPermissionSeeder   # Seed RBAC roles/permissions
+docker compose exec app php artisan db:seed --class=OAuthScopeSeeder          # Seed OAuth scopes
+docker compose exec app php artisan db:seed --class=RoleAndPermissionSeeder   # Seed RBAC roles/permissions
 
 # OAuth setup
-php artisan passport:install        # Setup Passport (one-time)
-php artisan passport:client         # Create OAuth client
+docker compose exec app php artisan passport:install        # Setup Passport (one-time)
+docker compose exec app php artisan passport:client         # Create OAuth client
+
+# RBAC / permissions
+docker compose exec app php artisan permission:show
+docker compose exec app php artisan user:assign-role demo@identitygateway.test admin
 ```
 
 ## Contributing
 
 1. Create a feature branch
 2. Add tests for new features
-3. Run `./vendor/bin/pint` before committing
+3. Run `docker compose exec app ./vendor/bin/pint` before committing
 4. Ensure all tests pass
 5. Open a pull request
 

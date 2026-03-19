@@ -42,11 +42,12 @@ export function TableBody({ children }: TableBodyProps) {
 interface TableRowProps {
     children: React.ReactNode;
     className?: string;
+    onClick?: () => void;
 }
 
-export function TableRow({ children, className = '' }: TableRowProps) {
+export function TableRow({ children, className = '', onClick }: TableRowProps) {
     return (
-        <tr className={`hover:bg-gray-50 transition-colors ${className}`}>
+        <tr className={`hover:bg-gray-50 transition-colors ${className}`} onClick={onClick}>
             {children}
         </tr>
     );

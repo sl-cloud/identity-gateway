@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\OAuthScope;
+use App\Passport\CustomBearerTokenResponse;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Laravel\Passport\Passport;
 
@@ -26,6 +27,9 @@ class AuthServiceProvider extends ServiceProvider
         Passport::tokensExpireIn(now()->addMinutes(15));
         Passport::refreshTokensExpireIn(now()->addDays(7));
         Passport::personalAccessTokensExpireIn(now()->addDays(7));
+
+        // Use custom JWT bearer token response
+        Passport::$authorizationServerResponseType = new CustomBearerTokenResponse;
 
         // Enable grant types
         Passport::enablePasswordGrant();

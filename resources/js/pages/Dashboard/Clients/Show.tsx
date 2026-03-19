@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { router, usePage } from '@inertiajs/react';
 import DashboardLayout from '../../../layouts/DashboardLayout';
 import { Card, CardHeader } from '../../../components/ui/Card';
@@ -32,6 +32,7 @@ interface Client {
 interface ClientShowProps {
     client: Client;
     tokens: Token[];
+    [key: string]: unknown;
 }
 
 export default function ClientsShow() {
