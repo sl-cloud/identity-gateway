@@ -22,6 +22,7 @@ const navItems: NavItem[] = [
     { label: 'Client Credentials', href: '/demo/flows/client-credentials' },
     { label: 'Introspection', href: '/demo/introspection' },
     { label: 'Revocation', href: '/demo/revocation' },
+    { label: 'Clients', href: '/demo/clients' },
 ];
 
 export default function DemoLayout({ children, title, subtitle }: DemoLayoutProps) {

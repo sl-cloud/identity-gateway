@@ -5,6 +5,7 @@ use App\Http\Controllers\Dashboard\AuditLogController;
 use App\Http\Controllers\Dashboard\ClientController;
 use App\Http\Controllers\Dashboard\TokenController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Demo\ClientManagerController;
 use App\Http\Controllers\Demo\FlowDemoController;
 use App\Http\Controllers\Demo\JwtInspectorController;
 use App\Http\Controllers\Demo\PlaygroundController;
@@ -24,6 +25,9 @@ Route::prefix('demo')->middleware(DemoEnvironmentOnly::class)->group(function ()
     Route::get('/introspection', [FlowDemoController::class, 'introspection'])->name('demo.introspection');
     Route::get('/revocation', [FlowDemoController::class, 'revocation'])->name('demo.revocation');
     Route::get('/callback', [FlowDemoController::class, 'callback'])->name('demo.callback');
+    Route::get('/clients', [ClientManagerController::class, 'index'])->name('demo.clients');
+    Route::post('/clients', [ClientManagerController::class, 'store'])->name('demo.clients.store');
+    Route::delete('/clients/{client}', [ClientManagerController::class, 'destroy'])->name('demo.clients.destroy');
 });
 
 Route::middleware(['auth'])->group(function () {

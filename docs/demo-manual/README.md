@@ -2,6 +2,10 @@
 
 This folder contains the user manual for the Identity Gateway Demo Application.
 
+**→ Start here: [View the Complete Demo Manual](./manual.md)**
+
+---
+
 ## Files
 
 | File | Description |

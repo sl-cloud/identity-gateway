@@ -57,6 +57,12 @@ const cards: DemoCard[] = [
         href: '/demo/revocation',
         category: 'Advanced',
     },
+    {
+        title: 'Client Manager',
+        description: 'Create and manage OAuth 2.0 demo clients. Get client IDs and secrets for use in other demos.',
+        href: '/demo/clients',
+        category: 'Interactive',
+    },
 ];
 
 export default function DemoIndex() {
