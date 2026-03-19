@@ -169,6 +169,8 @@ Developer dashboard for managing OAuth clients, API keys, tokens, and viewing au
 
 > **Note:** Demo routes are only available in `local` and `testing` environments. Access at [http://localhost:8000/demo](http://localhost:8000/demo).
 
+**Documentation:** For a complete walkthrough of all OAuth2 demo features, see the [Demo Manual](docs/demo-manual/manual.md).
+
 Public demo routes are available under `/demo`:
 
 - `/demo` - Demo landing page with quick links
