@@ -106,14 +106,6 @@ Debugging and monitoring tools.
 
 ---
 
-## Current Test Count
-
-- **Unit Tests:** JWT service, guards, middleware, audit redaction
-- **Feature Tests:** OAuth flows, API endpoints, dashboard authorization
-- **Total:** 80+ tests passing
-
----
-
 ## Running Tests
 
 ```bash
