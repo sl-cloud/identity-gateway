@@ -8,6 +8,10 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (Schema::hasTable('oauth_scopes')) {
+            return;
+        }
+
         Schema::create('oauth_scopes', function (Blueprint $table) {
             $table->string('id')->primary(); // e.g., 'user:read'
             $table->string('description');
