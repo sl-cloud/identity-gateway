@@ -98,6 +98,21 @@ php artisan serve
 - Register: `/auth/register`
 - Dashboard: `/dashboard` (requires login)
 
+### RBAC (Role-Based Access Control)
+
+Spatie Laravel Permission provides granular access control:
+
+**Roles:** `admin`, `developer`, `viewer`
+
+**Permissions by Domain:**
+- **OAuth Clients:** `clients:read`, `clients:create`, `clients:update`, `clients:revoke`
+- **API Keys:** `api-keys:read`, `api-keys:create`, `api-keys:revoke`
+- **Tokens:** `tokens:read`, `tokens:revoke`, `tokens:introspect`
+- **Audit Logs:** `audit-logs:read`
+- **System:** `system:manage-keys`
+
+Role inheritance: Admin > Developer > Viewer (admins have all permissions)
+
 ### OAuth2 (Complete)
 
 **JWT Signing with Rotating Keys:**
@@ -130,6 +145,29 @@ php artisan serve
 - Token revocation (RFC 7009)
 - Redis-backed revocation list
 - Stateless validation via JWKS
+
+## Dashboard
+
+Developer dashboard for managing OAuth clients, API keys, tokens, and viewing audit logs.
+
+### Features
+
+- **OAuth Clients:** Create, view, update, and revoke OAuth clients
+- **API Keys:** Generate and revoke API keys (shown once at creation)
+- **Token Inspector:** Decode and inspect JWT claims
+- **Audit Logs:** Filterable view of all system actions with 26 audit event types
+- **RBAC enforcement:** All routes protected by Spatie permissions
+
+### Dashboard Routes
+
+| Route | Description | Permission Required |
+|-------|-------------|---------------------|
+| `/dashboard` | Overview with stats | `auth` |
+| `/dashboard/clients` | OAuth client list | `clients:read` |
+| `/dashboard/clients/create` | Create new client | `clients:create` |
+| `/dashboard/api-keys` | API key management | `api-keys:read` |
+| `/dashboard/tokens` | Token list & inspector | `tokens:read` |
+| `/dashboard/audit-logs` | Audit log viewer | `audit-logs:read` |
 
 ## API
 
@@ -179,12 +217,24 @@ GitHub Actions runs tests on every push and PR to `main` and `develop`:
 identity-gateway/
 ├── app/
 │   ├── Console/Commands/       # Artisan commands
+│   ├── Enums/                  # AuditAction and other enums
 │   ├── Guards/                 # JWT and API key guards
 │   ├── Http/Controllers/       # Request handlers
+│   │   ├── Auth/               # OAuth2, login/logout
+│   │   ├── Api/                # Resource API endpoints
+│   │   └── Dashboard/          # Dashboard management
 │   ├── Models/                 # Eloquent models
 │   ├── Passport/               # Custom Passport classes
 │   └── Services/               # Business logic
-├── resources/js/               # React components and pages
+│       ├── AuditService.php    # Audit logging with redaction
+│       ├── JwtService.php      # JWT signing/verification
+│       └── ...
+├── resources/js/
+│   ├── components/ui/          # Reusable UI components
+│   ├── layouts/                # Dashboard and auth layouts
+│   └── pages/
+│       ├── Dashboard/          # Client, API key, token, audit pages
+│       └── Auth/               # Login, register, consent
 ├── routes/                     # Route definitions
 └── tests/                      # Feature and unit tests
 ```
@@ -193,9 +243,12 @@ identity-gateway/
 
 - RSA-3072 keys for JWT signing
 - 15-minute access tokens
-- Key rotation support
+- Automatic key rotation support
 - Session, JWT, and API key guards
 - Stateless JWT validation via Redis
+- Comprehensive audit logging with secret redaction
+- RBAC with Spatie Laravel Permission
+- Cross-tenant isolation (users only see their own resources)
 
 ## Commands
 
@@ -204,7 +257,8 @@ identity-gateway/
 php artisan jwt:rotate              # Rotate JWT signing keys (weekly via scheduler)
 
 # Database
-php artisan db:seed --class=OAuthScopeSeeder  # Seed OAuth scopes
+php artisan db:seed --class=OAuthScopeSeeder          # Seed OAuth scopes
+php artisan db:seed --class=RoleAndPermissionSeeder   # Seed RBAC roles/permissions
 
 # OAuth setup
 php artisan passport:install        # Setup Passport (one-time)

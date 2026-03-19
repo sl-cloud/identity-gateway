@@ -49,7 +49,7 @@ class DashboardController extends Controller
             'is_default' => $scope->is_default,
         ]);
 
-        return Inertia::render('Dashboard', [
+        return Inertia::render('Dashboard/Index', [
             'auth' => [
                 'user' => $user,
             ],
