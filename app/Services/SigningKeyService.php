@@ -29,7 +29,7 @@ class SigningKeyService
         $privateKeyPem = $privateKey->toString('PKCS8');
         $publicKeyPem = $publicKey->toString('PKCS8');
 
-        $lifetimeDays = config('identity-gateway.key_rotation.lifetime_days', 90);
+        $lifetimeDays = (int) config('identity-gateway.key_rotation.lifetime_days', 90);
 
         return SigningKey::create([
             'private_key' => $privateKeyPem,

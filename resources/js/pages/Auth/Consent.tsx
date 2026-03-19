@@ -1,4 +1,4 @@
-import React, { FormEvent, useState } from 'react';
+import { type FormEvent, useState } from 'react';
 import { router } from '@inertiajs/react';
 import AuthLayout from '@/layouts/AuthLayout';
 

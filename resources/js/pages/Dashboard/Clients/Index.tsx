@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { router, usePage } from '@inertiajs/react';
 import DashboardLayout from '../../../layouts/DashboardLayout';
-import { Card, CardHeader } from '../../../components/ui/Card';
+import { Card } from '../../../components/ui/Card';
 import { Button } from '../../../components/ui/Button';
 import { Badge } from '../../../components/ui/Badge';
 import { Table, TableHead, TableBody, TableRow, TableHeader, TableCell, EmptyState } from '../../../components/ui/Table';
@@ -21,6 +21,7 @@ interface Client {
 
 interface ClientsIndexProps {
     clients: Client[];
+    [key: string]: unknown;
 }
 
 export default function ClientsIndex() {

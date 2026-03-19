@@ -1,12 +1,11 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { router, usePage, useForm } from '@inertiajs/react';
 import DashboardLayout from '../../../layouts/DashboardLayout';
-import { Card, CardHeader } from '../../../components/ui/Card';
+import { Card } from '../../../components/ui/Card';
 import { Button } from '../../../components/ui/Button';
 import { Badge } from '../../../components/ui/Badge';
 import { Table, TableHead, TableBody, TableRow, TableHeader, TableCell, EmptyState } from '../../../components/ui/Table';
 import { Modal, ConfirmModal } from '../../../components/ui/Modal';
-import { Input } from '../../../components/ui/Input';
 
 interface Token {
     id: string;
@@ -30,6 +29,7 @@ interface TokenInspectResult {
 
 interface TokensIndexProps {
     tokens: Token[];
+    [key: string]: unknown;
 }
 
 export default function TokensIndex() {
@@ -43,11 +43,11 @@ export default function TokensIndex() {
     const [tokenToDelete, setTokenToDelete] = useState<Token | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
 
-    const { data, setData, post, processing, errors, reset } = useForm({
+    const { data, setData, errors, reset } = useForm({
         token: '',
     });
 
-    const handleInspect = async (e: React.FormEvent) => {
+    const handleInspect = async (e: import('react').FormEvent) => {
         e.preventDefault();
         setIsInspecting(true);
 
@@ -86,10 +86,6 @@ export default function TokensIndex() {
                 setTokenToDelete(null);
             },
         });
-    };
-
-    const copyToClipboard = (text: string) => {
-        navigator.clipboard.writeText(text);
     };
 
     return (
