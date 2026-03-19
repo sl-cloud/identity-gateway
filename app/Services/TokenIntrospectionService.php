@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\Redis;
 use Throwable;
 
 class TokenIntrospectionService
@@ -25,7 +24,7 @@ class TokenIntrospectionService
 
             // Check if token is in revocation blacklist
             $jti = $payload->jti ?? null;
-            if ($jti && Redis::exists('revoked:'.$jti)) {
+            if ($jti && $this->jwtService->isRevoked($jti)) {
                 return [
                     'active' => false,
                 ];

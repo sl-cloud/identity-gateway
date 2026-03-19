@@ -6,7 +6,7 @@ use App\Models\User;
 use App\Services\JwtService;
 use App\Services\SigningKeyService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Redis;
+use Illuminate\Support\Facades\Cache;
 use Tests\TestCase;
 
 class JwtServiceTest extends TestCase
@@ -28,13 +28,13 @@ class JwtServiceTest extends TestCase
     }
 
     /**
-     * Mock Redis to return that token is not revoked.
+     * Mock Cache to return that token is not revoked.
      * Call this in tests that need token verification to work.
      */
     protected function mockTokenNotRevoked(?string $jti = null): void
     {
         $key = $jti ? "revoked:{$jti}" : \Mockery::pattern('/revoked:.*/');
-        Redis::shouldReceive('exists')
+        Cache::shouldReceive('has')
             ->with($key)
             ->andReturn(false);
     }
@@ -103,11 +103,11 @@ class JwtServiceTest extends TestCase
 
         $jti = $this->jwtService->extractJti($token);
 
-        // Mock Redis for revoke (setex) and verification (exists)
-        Redis::shouldReceive('setex')
-            ->with("revoked:{$jti}", 900, true)
+        // Mock Cache for revoke (put) and verification (has)
+        Cache::shouldReceive('put')
+            ->with("revoked:{$jti}", true, 900)
             ->once();
-        Redis::shouldReceive('exists')
+        Cache::shouldReceive('has')
             ->with("revoked:{$jti}")
             ->andReturn(true);
 
@@ -134,8 +134,8 @@ class JwtServiceTest extends TestCase
     {
         $jti = 'test-jti-12345';
 
-        // Mock exists to return false then true on consecutive calls
-        Redis::shouldReceive('exists')
+        // Mock has to return false then true on consecutive calls
+        Cache::shouldReceive('has')
             ->with("revoked:{$jti}")
             ->twice()
             ->andReturn(false, true);
@@ -144,8 +144,8 @@ class JwtServiceTest extends TestCase
         $this->assertFalse($this->jwtService->isRevoked($jti));
 
         // Add to revoked tokens
-        Redis::shouldReceive('setex')
-            ->with("revoked:{$jti}", 3600, true)
+        Cache::shouldReceive('put')
+            ->with("revoked:{$jti}", true, 3600)
             ->once();
         $this->jwtService->revoke($jti, 3600);
 

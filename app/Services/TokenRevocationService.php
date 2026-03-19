@@ -3,7 +3,6 @@
 namespace App\Services;
 
 use Defuse\Crypto\Crypto;
-use Illuminate\Support\Facades\Redis;
 use Laravel\Passport\RefreshToken;
 use Laravel\Passport\Token;
 use Throwable;
@@ -56,10 +55,10 @@ class TokenRevocationService
                 return false;
             }
 
-            // Add to Redis revocation blacklist with TTL matching token expiry
+            // Add to revocation blacklist with TTL matching token expiry
             $ttl = max(0, $exp - time());
             if ($ttl > 0) {
-                Redis::setex('revoked:'.$jti, $ttl, true);
+                $this->jwtService->revoke($jti, $ttl);
             }
 
             return true;
