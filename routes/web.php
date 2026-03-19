@@ -5,9 +5,26 @@ use App\Http\Controllers\Dashboard\AuditLogController;
 use App\Http\Controllers\Dashboard\ClientController;
 use App\Http\Controllers\Dashboard\TokenController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Demo\FlowDemoController;
+use App\Http\Controllers\Demo\JwtInspectorController;
+use App\Http\Controllers\Demo\PlaygroundController;
+use App\Http\Middleware\DemoEnvironmentOnly;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/auth/login');
+
+Route::prefix('demo')->middleware(DemoEnvironmentOnly::class)->group(function () {
+    Route::get('/', [FlowDemoController::class, 'index'])->name('demo.index');
+    Route::get('/playground', [PlaygroundController::class, 'index'])->name('demo.playground');
+    Route::get('/jwt-inspector', [JwtInspectorController::class, 'index'])->name('demo.jwt-inspector');
+    Route::get('/jwks', [JwtInspectorController::class, 'jwks'])->name('demo.jwks');
+    Route::get('/flows/auth-code', [FlowDemoController::class, 'authCode'])->name('demo.flows.auth-code');
+    Route::get('/flows/pkce', [FlowDemoController::class, 'pkce'])->name('demo.flows.pkce');
+    Route::get('/flows/client-credentials', [FlowDemoController::class, 'clientCredentials'])->name('demo.flows.client-credentials');
+    Route::get('/introspection', [FlowDemoController::class, 'introspection'])->name('demo.introspection');
+    Route::get('/revocation', [FlowDemoController::class, 'revocation'])->name('demo.revocation');
+    Route::get('/callback', [FlowDemoController::class, 'callback'])->name('demo.callback');
+});
 
 Route::middleware(['auth'])->group(function () {
     // Main dashboard
